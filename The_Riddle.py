@@ -1,48 +1,54 @@
-#https://www.youtube.com/watch?v=iSNsgj1OCLA&ab_channel=Veritasium
-#The Riddle That Seems Impossible Even If You Know The Answer 
-#I implemented the riddle and the solution in python and find its accuracy
-#The riddle contains a set of numbers from 1-100 arranged randomly for which i used the random module
-#The riddle will be explained in the youtube link above 
-#I got accuracy of one out of ten trails as the solution promises the best accuracy ever for that problem
-#Try it by your self
+from random import randint
 
-from random import randint as ran
-li = []
-while len(li)<=99:
-    a = ran(0,99)
-    if a not in li:
-        li.append(a)
+def generate_unique_random_list(size, start=0, end=99):
+    """Generate a list of unique random integers within a range."""
+    unique_list = set()
+    while len(unique_list) < size:
+        unique_list.add(randint(start, end))
+    return list(unique_list)
 
-sucess = 0
-for i in range(99):
-    if i not in li:
-        print(i)
+def find_cycles_and_success(sequence, max_iterations=50):
+    """Find cycles in the sequence and count successful matches."""
+    success_count = 0
+    visited = set()
 
-for i in range(100):
-    count = 0
-    li2 = [i]
-    index = i
-    while True:
-        count = count+1
+    for start in range(len(sequence)):
+        if start in visited:
+            continue
         
+        current = start
+        cycle = set()
+        steps = 0
         
-        if i == li[index]:
+        while steps < max_iterations:
+            if current in cycle:
+                # Found a cycle without success
+                break
+            cycle.add(current)
+            visited.add(current)
             
-            sucess+=1
-            break
-        if li[index] in li2:
-            for i in range(100):
-                index = i
-                if index not in li2:
-                    break
+            # Check if the sequence points back to the start
+            if sequence[current] == start:
+                success_count += 1
+                break
             
-            li2.append(li[index])
-        else:
-            index = li[index]
-        
-        
-        if count==50:
-            break
-print(sucess)
+            current = sequence[current]
+            steps += 1
+
+    return success_count
+
+def main():
+    size = 100
+    random_sequence = generate_unique_random_list(size)
     
+    # Identify missing numbers
+    missing_numbers = set(range(size)) - set(random_sequence)
+    if missing_numbers:
+        print(f"Missing numbers in the sequence: {sorted(missing_numbers)}")
     
+    # Find cycles and successful matches
+    success_count = find_cycles_and_success(random_sequence)
+    print(f"Number of successful cycles: {success_count}")
+
+if __name__ == "__main__":
+    main()
